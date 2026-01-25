@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  CLUB
+  ADMIN
+}
+
+enum EventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+}
+
+enum AttendingType {
+  ALONE
+  WITH_FAMILY
+}
+
+enum BookingUserType {
+  STUDENT
+  FACULTY
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(STUDENT)
+  phone     String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bookings     Booking[]
+  createdEvents Event[]    @relation("EventCreator")
+  club         Club?       @relation("ClubOwner")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Club {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  logo        String?
+  website     String?
+  instagram   String?
+  facebook    String?
+  twitter     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ownerId String @unique
+  owner   User   @relation("ClubOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  events  Event[]
+
+  @@map("clubs")
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  banner      String?
+  venue       String
+  date        DateTime
+  maxSeats    Int
+  price       Float?      @default(0)
+  status      EventStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  creatorId String
+  creator   User     @relation("EventCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  clubId    String
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+
+  @@map("events")
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  qrCode    String        @unique
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  checkedInAt DateTime?
+
+  // Booking form fields
+  userType      BookingUserType
+  rollNo        String?
+  department    String?
+  semester      String?
+  facultyId     String?
+  attendingWith AttendingType
+  numberOfPeople Int @default(1)
+
+  // Relations
+  userId  String
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId String
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@map("bookings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   // EMAIL, SMS, PUSH
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
