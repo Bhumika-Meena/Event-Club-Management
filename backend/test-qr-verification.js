@@ -10,7 +10,7 @@
 const axios = require('axios');
 
 // Configuration
-const API_BASE_URL = process.env.API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 const CLUB_EMAIL = process.env.TEST_CLUB_EMAIL || 'club@example.com';
 const CLUB_PASSWORD = process.env.TEST_CLUB_PASSWORD || 'password123';
 
