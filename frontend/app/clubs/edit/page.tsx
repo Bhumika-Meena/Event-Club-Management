@@ -38,7 +38,7 @@ export default function EditClub() {
   useEffect(() => {
     if (user?.role === 'CLUB') {
       fetchClub()
-    } else if (user && user.role !== 'CLUB') {
+    } else if (user) {
       router.push('/')
     }
   }, [user])
