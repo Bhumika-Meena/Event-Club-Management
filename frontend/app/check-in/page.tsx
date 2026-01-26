@@ -82,8 +82,7 @@ export default function CheckInPage() {
           fps: 10,
           qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
-          disableFlip: false,
-          
+          disableFlip: false
         },
         (decodedText, decodedResult) => {
           // QR code scanned successfully
