@@ -34,7 +34,10 @@ interface RegisterData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 // Configure axios defaults
-axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+// Ensure we append /api if not already present
+const baseURL = apiBaseUrl.endsWith('/api') ? apiBaseUrl : `${apiBaseUrl}/api`
+axios.defaults.baseURL = baseURL
 axios.defaults.withCredentials = true
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
