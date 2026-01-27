@@ -93,7 +93,7 @@ export default function Register() {
     }
 
     // Check if password is alphanumeric (contains both letters and numbers)
-    const alphanumericRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/
+    const alphanumericRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
     if (!alphanumericRegex.test(formData.password)) {
       toast.error('Password must contain letters, numbers and special character.)')
       return
