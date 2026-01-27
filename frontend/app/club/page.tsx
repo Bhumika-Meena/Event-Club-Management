@@ -291,8 +291,8 @@ export default function ClubDashboard() {
         >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-slate-900">All Events</h2>
-            <Link href="/events/create" className="btn-primary">
-              <Plus className="w-4 h-4 mr-2" />
+            <Link href="/events/create" className="btn-primary flex items-center gap-1.5 text-sm">
+              <Plus className="w-4 h-4" />
               Create Event
             </Link>
           </div>
