@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, MapPin, Users, DollarSign, Save } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import axios from 'axios'
+import { Calendar, MapPin, Users, DollarSign, Save, Plus } from 'lucide-react'
+import { useAuth, apiClient } from '../../contexts/AuthContext'
+import { Header } from '../../components/Header'
 import toast from 'react-hot-toast'
 
 interface Club {
@@ -42,7 +42,7 @@ export default function CreateEvent() {
   const fetchClub = async () => {
     try {
       if (user?.role === 'CLUB') {
-        const response = await axios.get('/clubs/my/club')
+        const response = await apiClient.get('/clubs/my/club')
         setClub(response.data.club)
       } else if (user?.role === 'ADMIN') {
         // For admin, we'll need to select a club - for now, show a message
@@ -96,7 +96,7 @@ export default function CreateEvent() {
       
       console.log('Sending event data:', payload)
       
-      const response = await axios.post('/events', payload)
+      const response = await apiClient.post('/events', payload)
       toast.success('Event created successfully! It will be reviewed by admin.')
       router.push('/club')
     } catch (error: any) {
@@ -120,7 +120,7 @@ export default function CreateEvent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -129,7 +129,7 @@ export default function CreateEvent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">No Club Found</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">No Club Found</h1>
           <p className="text-slate-600 mb-6">You need to create a club first.</p>
           <Link href="/club" className="btn-primary">
             Go Back
@@ -140,18 +140,19 @@ export default function CreateEvent() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <Link href={user?.role === 'CLUB' ? '/club' : '/admin'} className="btn-secondary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Link>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-slate-600" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold title-gradient">Create Event</h1>
-              <p className="text-slate-600">Add a new event for {club?.name || 'your club'}</p>
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Create Event</h1>
+              <p className="text-sm text-slate-600 mt-1">Add a new event for {club?.name || 'your club'}</p>
             </div>
           </div>
         </div>
@@ -213,7 +214,7 @@ export default function CreateEvent() {
                     value={formData.venue}
                     onChange={handleChange}
                   />
-                  <MapPin className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <MapPin className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
 
@@ -233,7 +234,7 @@ export default function CreateEvent() {
                     value={formData.maxSeats}
                     onChange={handleChange}
                   />
-                  <Users className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <Users className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
             </div>
@@ -254,7 +255,7 @@ export default function CreateEvent() {
                     onChange={handleChange}
                     min={new Date().toISOString().split('T')[0]}
                   />
-                  <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
 
@@ -290,7 +291,7 @@ export default function CreateEvent() {
                   value={formData.price}
                   onChange={handleChange}
                 />
-                <DollarSign className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                <DollarSign className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
               </div>
               <p className="mt-1 text-sm text-slate-500">Enter 0 for free events. All prices are in INR.</p>
             </div>

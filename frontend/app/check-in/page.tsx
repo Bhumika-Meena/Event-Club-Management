@@ -3,13 +3,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { QrCode, CheckCircle, XCircle, Camera, ArrowLeft, User, Calendar, MapPin, Building2 } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { QrCode, CheckCircle, XCircle, Camera, User, Calendar, MapPin, Building2 } from 'lucide-react'
+import { useAuth, apiClient } from '../contexts/AuthContext'
+import { Header } from '../components/Header'
 import toast from 'react-hot-toast'
 import { Html5Qrcode } from 'html5-qrcode'
 import { format } from 'date-fns'
-import Link from 'next/link'
 
 interface CheckInResult {
   message: string
@@ -135,7 +134,7 @@ export default function CheckInPage() {
       toast.loading('Verifying QR code...', { id: 'verifying' })
 
       // Verify QR code with backend
-      const response = await axios.post<CheckInResult>('/bookings/verify-qr', {
+      const response = await apiClient.post<CheckInResult>('/bookings/verify-qr', {
         qrCode: qrCode.trim()
       })
 
@@ -179,7 +178,7 @@ export default function CheckInPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -189,22 +188,19 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href={user?.role === 'ADMIN' ? '/admin' : '/club'} className="text-slate-600 hover:text-primary-600">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold title-gradient flex items-center gap-2">
-                  <QrCode className="w-8 h-8" />
-                  Event Check-In
-                </h1>
-                <p className="text-slate-600">Scan QR codes to check in attendees</p>
-              </div>
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center">
+              <QrCode className="w-5 h-5 text-slate-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Event Check-In</h1>
+              <p className="text-sm text-slate-600 mt-1">Scan QR codes to check in attendees</p>
             </div>
           </div>
         </div>
@@ -220,7 +216,7 @@ export default function CheckInPage() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-6"
             >
-              <div className="glass-card p-6 border-2 border-green-500">
+              <div className="card p-6 border-2 border-green-500">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-green-100 rounded-full">
                     <CheckCircle className="w-8 h-8 text-green-600" />
@@ -274,7 +270,7 @@ export default function CheckInPage() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-6"
             >
-              <div className="glass-card p-6 border-2 border-red-500">
+              <div className="card p-6 border-2 border-red-500">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-red-100 rounded-full">
                     <XCircle className="w-8 h-8 text-red-600" />
@@ -298,9 +294,9 @@ export default function CheckInPage() {
         {!result && (
           <div className="space-y-6">
             {/* Scanner Container */}
-            <div className="glass-card p-6">
+            <div className="card p-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold title-gradient mb-2">QR Code Scanner</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">QR Code Scanner</h2>
                 <p className="text-slate-600">Position the QR code within the frame</p>
               </div>
 
@@ -362,9 +358,9 @@ export default function CheckInPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card p-6"
+                className="card p-6"
               >
-                <h3 className="text-xl font-bold title-gradient mb-4">Enter QR Code Manually</h3>
+                <h3 className="text-xl font-bold text-slate-900 mb-4">Enter QR Code Manually</h3>
                 <form onSubmit={handleManualSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -386,8 +382,8 @@ export default function CheckInPage() {
             )}
 
             {/* Instructions */}
-            <div className="glass-card p-6 bg-primary-50/50">
-              <h3 className="text-lg font-bold title-gradient mb-3">How to Use</h3>
+            <div className="card p-6 bg-slate-50">
+              <h3 className="text-lg font-bold text-slate-900 mb-3">How to Use</h3>
               <ol className="list-decimal list-inside space-y-2 text-slate-700 mb-4">
                 <li>Click "Start Scanner" to activate your camera</li>
                 <li>Position the attendee's QR code within the frame</li>

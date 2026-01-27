@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, GraduationCap, Users } from 'lucide-react'
-import axios from 'axios'
+import { apiClient } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
 interface Event {
@@ -100,7 +100,7 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
       // Check if event is paid or free
       if (event.price > 0) {
         // Paid event - create payment order
-        const orderResponse = await axios.post('/payments/create-order', {
+        const orderResponse = await apiClient.post('/payments/create-order', {
           eventId: event.id
         })
 
@@ -117,7 +117,7 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
           handler: async (response: any) => {
             try {
               // Payment successful, now create booking
-              await axios.post('/events/book', bookingData)
+              await apiClient.post('/events/book', bookingData)
               toast.success('Payment and booking confirmed! Check your email for details.')
               handleClose()
               onBookingSuccess()
@@ -144,7 +144,7 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
         setLoading(false)
       } else {
         // Free event - directly create booking
-        await axios.post('/events/book', bookingData)
+        await apiClient.post('/events/book', bookingData)
         toast.success('Booking confirmed! Check your email for details.')
         handleClose()
         onBookingSuccess()
@@ -160,8 +160,8 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
 
   return (
     <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm"
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -175,17 +175,17 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
           transition={{ duration: 0.2 }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Close button */}
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 z-10"
-            disabled={loading}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="mb-6">
-            <h2 className="text-2xl font-bold title-gradient mb-2">Book Event</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Book Event</h2>
             <p className="text-slate-600">{event.title}</p>
             <p className="text-sm text-slate-500 mt-1">
               {event.price > 0 ? `Price: ₹${event.price}` : 'Free Event'}
@@ -200,17 +200,17 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
                 <button
                   type="button"
                   onClick={() => setUserType('STUDENT')}
-                  className="card-hover p-6 text-center border-2 border-transparent hover:border-primary-300 transition-colors"
+                  className="card-hover p-6 text-center border-2 border-transparent hover:border-slate-300 transition-colors"
                 >
-                  <GraduationCap className="w-12 h-12 mx-auto mb-3 text-primary-500" />
+                  <GraduationCap className="w-12 h-12 mx-auto mb-3 text-slate-600" />
                   <h3 className="font-semibold text-slate-900">Student</h3>
                 </button>
                 <button
                   type="button"
                   onClick={() => setUserType('FACULTY')}
-                  className="card-hover p-6 text-center border-2 border-transparent hover:border-primary-300 transition-colors"
+                  className="card-hover p-6 text-center border-2 border-transparent hover:border-slate-300 transition-colors"
                 >
-                  <User className="w-12 h-12 mx-auto mb-3 text-primary-500" />
+                  <User className="w-12 h-12 mx-auto mb-3 text-slate-600" />
                   <h3 className="font-semibold text-slate-900">Employee</h3>
                 </button>
               </div>
@@ -297,7 +297,7 @@ export function BookingForm({ event, isOpen, onClose, onBookingSuccess }: Bookin
               <button
                 type="button"
                 onClick={() => setUserType(null)}
-                className="text-sm text-primary-600 hover:text-primary-700 mb-4"
+                className="text-sm text-slate-700 hover:text-slate-900 mb-4"
                 disabled={loading}
               >
                 ← Back to selection

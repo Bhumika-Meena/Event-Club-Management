@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Calendar, Users, TrendingUp, Plus, Edit, BarChart3, User as UserIcon, QrCode } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { Calendar, Users, TrendingUp, Plus, Edit, BarChart3 } from 'lucide-react'
+import { useAuth, apiClient } from '../contexts/AuthContext'
+import { Header } from '../components/Header'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 
@@ -48,7 +48,7 @@ export default function ClubDashboard() {
 
   const fetchClubData = async () => {
     try {
-      const response = await axios.get('/clubs/my/club')
+      const response = await apiClient.get('/clubs/my/club')
       setClub(response.data.club)
     } catch (error) {
       toast.error('Failed to fetch club data')
@@ -57,7 +57,7 @@ export default function ClubDashboard() {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await axios.get('/clubs/my/analytics')
+      const response = await apiClient.get('/clubs/my/analytics')
       setAnalytics(response.data.analytics)
     } catch (error) {
       toast.error('Failed to fetch analytics')
@@ -69,7 +69,7 @@ export default function ClubDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -78,7 +78,7 @@ export default function ClubDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">Access Denied</h1>
           <p className="text-slate-600">You don't have permission to access this page.</p>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function ClubDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">No Club Found</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">No Club Found</h1>
           <p className="text-slate-600 mb-6">You need to create a club first.</p>
           <Link href="/clubs/create" className="btn-primary">
             Create Club
@@ -100,44 +100,34 @@ export default function ClubDashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
               {club.logo && (
                 <img
                   src={club.logo}
                   alt={club.name}
-                  className="w-12 h-12 rounded-full mr-4"
+                  className="w-12 h-12 rounded-full border border-slate-200"
                 />
               )}
               <div>
-                <h1 className="text-3xl font-bold title-gradient">{club.name}</h1>
-                <p className="text-slate-600">Club Dashboard</p>
+                <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">{club.name}</h1>
+                <p className="text-sm text-slate-600 mt-1">Club Dashboard</p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Link href="/check-in" className="btn-primary flex items-center gap-1 text-sm">
-                <QrCode className="w-4 h-4" />
-                <span>Check-In</span>
-              </Link>
-              <Link href="/profile" className="btn-secondary flex items-center gap-1 text-sm">
-                <UserIcon className="w-4 h-4" />
-                <span>Profile</span>
-              </Link>
-              <Link href="/events" className="btn-secondary flex items-center gap-1 text-sm">
-                <Calendar className="w-4 h-4" />
-                <span>Events</span>
-              </Link>
-              <Link href="/clubs/edit" className="btn-secondary flex items-center gap-1 text-sm">
+              <Link href="/clubs/edit" className="btn-secondary flex items-center gap-1.5 text-sm">
                 <Edit className="w-4 h-4" />
-                <span>Edit Club</span>
+                Edit Club
               </Link>
-              <Link href="/events/create" className="btn-secondary flex items-center gap-1 text-sm">
+              <Link href="/events/create" className="btn-primary flex items-center gap-1.5 text-sm">
                 <Plus className="w-4 h-4" />
-                <span>Create Event</span>
+                Create Event
               </Link>
             </div>
           </div>
@@ -154,7 +144,7 @@ export default function ClubDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <Calendar className="w-10 h-10 text-primary-500 bg-primary-500/10 p-2 rounded-xl" />
+              <Calendar className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Events</p>
                 <p className="text-2xl font-bold text-slate-900">{analytics?.totalEvents || 0}</p>
@@ -169,7 +159,7 @@ export default function ClubDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <Users className="w-10 h-10 text-neon-lime bg-neon-lime/10 p-2 rounded-xl" />
+              <Users className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Bookings</p>
                 <p className="text-2xl font-bold text-slate-900">{analytics?.totalBookings || 0}</p>
@@ -184,7 +174,7 @@ export default function ClubDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <TrendingUp className="w-10 h-10 text-neon-purple bg-neon-purple/10 p-2 rounded-xl" />
+              <TrendingUp className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Revenue</p>
                 <p className="text-2xl font-bold text-slate-900">${analytics?.totalRevenue || 0}</p>
@@ -199,7 +189,7 @@ export default function ClubDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <BarChart3 className="w-10 h-10 text-neon-yellow bg-neon-yellow/20 p-2 rounded-xl" />
+              <BarChart3 className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Avg Attendance</p>
                 <p className="text-2xl font-bold text-slate-900">{analytics?.averageAttendance?.toFixed(1) || 0}</p>
@@ -226,25 +216,25 @@ export default function ClubDashboard() {
               {club.website && (
                 <div>
                   <label className="block text-sm font-medium text-slate-600">Website</label>
-                  <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-500">
+                  <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900 underline">
                     {club.website}
                   </a>
                 </div>
               )}
 
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 {club.instagram && (
-                  <a href={`https://instagram.com/${club.instagram}`} target="_blank" rel="noopener noreferrer" className="text-neon-pink hover:text-neon-purple transition-colors">
+                  <a href={`https://instagram.com/${club.instagram}`} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900 underline transition-colors">
                     Instagram: @{club.instagram}
                   </a>
                 )}
                 {club.facebook && (
-                  <a href={`https://facebook.com/${club.facebook}`} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-500 transition-colors">
+                  <a href={`https://facebook.com/${club.facebook}`} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900 underline transition-colors">
                     Facebook: {club.facebook}
                   </a>
                 )}
                 {club.twitter && (
-                  <a href={`https://twitter.com/${club.twitter}`} target="_blank" rel="noopener noreferrer" className="text-sky-500 hover:text-sky-400 transition-colors">
+                  <a href={`https://twitter.com/${club.twitter}`} target="_blank" rel="noopener noreferrer" className="text-slate-700 hover:text-slate-900 underline transition-colors">
                     Twitter: @{club.twitter}
                   </a>
                 )}
@@ -262,7 +252,7 @@ export default function ClubDashboard() {
             <h2 className="text-xl font-bold text-slate-900 mb-6">Recent Events</h2>
             <div className="space-y-4">
               {club.events.slice(0, 5).map((event) => (
-                <div key={event.id} className="rounded-xl border border-white/60 bg-white/70 p-4 backdrop-blur">
+                <div key={event.id} className="rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-slate-900">{event.title}</h3>
                     <span className={`text-xs px-2 py-1 rounded-full ${
@@ -279,7 +269,7 @@ export default function ClubDashboard() {
                     <span className="text-sm text-slate-600">
                       {event._count.bookings} / {event.maxSeats} booked
                     </span>
-                    <span className="text-sm font-medium title-gradient">
+                    <span className="text-sm font-medium text-slate-900">
                       {event.price > 0 ? `₹${event.price}` : 'Free'}
                     </span>
                   </div>
@@ -308,8 +298,8 @@ export default function ClubDashboard() {
           </div>
           
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-white/50">
-              <thead className="bg-white/50">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Event
@@ -328,7 +318,7 @@ export default function ClubDashboard() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white/70 backdrop-blur divide-y divide-white/40">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {club.events.map((event) => (
                   <tr key={event.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -354,10 +344,10 @@ export default function ClubDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex gap-3">
-                        <Link href={`/events/${event.id}`} className="text-primary-600 hover:text-primary-500 transition-colors">
+                        <Link href={`/events/${event.id}`} className="text-slate-700 hover:text-slate-900 transition-colors">
                           View
                         </Link>
-                        <Link href={`/events/${event.id}/edit`} className="text-neon-lime hover:text-primary-500 transition-colors">
+                        <Link href={`/events/${event.id}/edit`} className="text-slate-700 hover:text-slate-900 transition-colors">
                           Edit
                         </Link>
                       </div>

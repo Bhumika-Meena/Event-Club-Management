@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Building2, Save, Globe, Instagram, Facebook, Twitter } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import axios from 'axios'
+import { Building2, Save, Globe, Instagram, Facebook, Twitter } from 'lucide-react'
+import { useAuth, apiClient } from '../../contexts/AuthContext'
+import { Header } from '../../components/Header'
 import toast from 'react-hot-toast'
 
 export default function CreateClub() {
@@ -37,7 +37,7 @@ export default function CreateClub() {
         twitter: formData.twitter.trim() || undefined
       }
 
-      await axios.post('/clubs', payload)
+      await apiClient.post('/clubs', payload)
       toast.success('Club created successfully!')
       router.push('/club')
     } catch (error: any) {
@@ -62,7 +62,7 @@ export default function CreateClub() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">Access Denied</h1>
           <p className="text-slate-600 mb-6">Only club accounts can create clubs.</p>
           <Link href="/" className="btn-primary">
             Go Home
@@ -73,18 +73,19 @@ export default function CreateClub() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <Link href="/club" className="btn-secondary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Link>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-slate-600" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold title-gradient">Create Your Club</h1>
-              <p className="text-slate-600">Set up your club profile to start managing events</p>
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Create Your Club</h1>
+              <p className="text-sm text-slate-600 mt-1">Set up your club profile to start managing events</p>
             </div>
           </div>
         </div>
@@ -113,7 +114,7 @@ export default function CreateClub() {
                   value={formData.name}
                   onChange={handleChange}
                 />
-                <Building2 className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                <Building2 className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
               </div>
               <p className="mt-1 text-sm text-slate-500">This will be your club's public name</p>
             </div>
@@ -147,7 +148,7 @@ export default function CreateClub() {
                   value={formData.website}
                   onChange={handleChange}
                 />
-                <Globe className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                <Globe className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
               </div>
             </div>
 
@@ -166,7 +167,7 @@ export default function CreateClub() {
                     value={formData.instagram}
                     onChange={handleChange}
                   />
-                  <Instagram className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <Instagram className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
 
@@ -184,7 +185,7 @@ export default function CreateClub() {
                     value={formData.facebook}
                     onChange={handleChange}
                   />
-                  <Facebook className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <Facebook className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
 
@@ -202,12 +203,12 @@ export default function CreateClub() {
                     value={formData.twitter}
                     onChange={handleChange}
                   />
-                  <Twitter className="absolute left-3 top-2.5 h-5 w-5 text-primary-400" />
+                  <Twitter className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
               <p className="text-sm text-slate-700">
                 <strong>Note:</strong> Only the club name is required. You can add other details later by editing your club profile.
               </p>

@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Calendar, Building2, TrendingUp, CheckCircle, XCircle, Clock, User, QrCode } from 'lucide-react'
-import Link from 'next/link'
-import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { Users, Calendar, Building2, TrendingUp, CheckCircle, XCircle } from 'lucide-react'
+import { useAuth, apiClient } from '../contexts/AuthContext'
+import { Header } from '../components/Header'
 import toast from 'react-hot-toast'
 
 interface DashboardStats {
@@ -32,7 +31,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await axios.get('/admin/dashboard')
+      const response = await apiClient.get('/admin/dashboard')
       setStats(response.data.stats)
     } catch (error) {
       toast.error('Failed to fetch dashboard data')
@@ -43,7 +42,7 @@ export default function AdminDashboard() {
 
   const handleEventStatusUpdate = async (eventId: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-      await axios.patch(`/admin/events/${eventId}/status`, { status })
+      await apiClient.patch(`/admin/events/${eventId}/status`, { status })
       toast.success(`Event ${status.toLowerCase()} successfully`)
       fetchDashboardStats()
     } catch (error) {
@@ -54,7 +53,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -63,7 +62,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">Access Denied</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">Access Denied</h1>
           <p className="text-slate-600">You don't have permission to access this page.</p>
         </div>
       </div>
@@ -71,28 +70,14 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold title-gradient">Admin Dashboard</h1>
-            <p className="text-slate-600">Manage users, events, and clubs</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href="/check-in" className="btn-primary flex items-center gap-1 text-sm">
-              <QrCode className="w-4 h-4" />
-              <span>Check-In</span>
-            </Link>
-            <Link href="/profile" className="btn-secondary flex items-center gap-1 text-sm">
-              <User className="w-4 h-4" />
-              <span>Profile</span>
-            </Link>
-            <Link href="/events" className="btn-secondary flex items-center gap-1 text-sm">
-              <Calendar className="w-4 h-4" />
-              <span>Events</span>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm text-slate-600 mt-1">Manage users, events, and clubs</p>
         </div>
       </div>
 
@@ -106,7 +91,7 @@ export default function AdminDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <Users className="w-10 h-10 text-primary-500 bg-primary-500/10 p-2 rounded-xl" />
+              <Users className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Users</p>
                 <p className="text-2xl font-bold text-slate-900">{stats?.totalUsers || 0}</p>
@@ -121,7 +106,7 @@ export default function AdminDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <Building2 className="w-10 h-10 text-neon-lime bg-neon-lime/10 p-2 rounded-xl" />
+              <Building2 className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Active Clubs</p>
                 <p className="text-2xl font-bold text-slate-900">{stats?.totalClubs || 0}</p>
@@ -136,7 +121,7 @@ export default function AdminDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <Calendar className="w-10 h-10 text-neon-purple bg-neon-purple/10 p-2 rounded-xl" />
+              <Calendar className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Events</p>
                 <p className="text-2xl font-bold text-slate-900">{stats?.totalEvents || 0}</p>
@@ -151,7 +136,7 @@ export default function AdminDashboard() {
             className="card"
           >
             <div className="flex items-center">
-              <TrendingUp className="w-10 h-10 text-neon-yellow bg-neon-yellow/20 p-2 rounded-xl" />
+              <TrendingUp className="w-10 h-10 text-slate-600 bg-slate-100 p-2 rounded-lg" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-slate-600">Total Bookings</p>
                 <p className="text-2xl font-bold text-slate-900">{stats?.totalBookings || 0}</p>
@@ -171,7 +156,7 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold text-slate-900 mb-6">Pending Events</h2>
             <div className="space-y-4">
               {stats?.recentEvents?.filter(event => event.status === 'PENDING').map((event) => (
-                <div key={event.id} className="rounded-xl border border-white/60 bg-white/70 p-4 backdrop-blur">
+                <div key={event.id} className="rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-slate-900">{event.title}</h3>
                     <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
@@ -214,9 +199,9 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold text-slate-900 mb-6">Top Clubs</h2>
             <div className="space-y-4">
               {stats?.topClubs?.map((club, index) => (
-                <div key={club.id} className="flex items-center justify-between rounded-xl border border-white/60 bg-white/70 p-3 backdrop-blur">
+                <div key={club.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3">
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                    <div className="w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
                       {index + 1}
                     </div>
                     <div>
@@ -239,8 +224,8 @@ export default function AdminDashboard() {
         >
           <h2 className="text-xl font-bold text-slate-900 mb-6">Recent Events</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-white/50">
-              <thead className="bg-white/50">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                     Event
@@ -259,7 +244,7 @@ export default function AdminDashboard() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white/70 backdrop-blur divide-y divide-white/40">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {stats?.recentEvents?.map((event) => (
                   <tr key={event.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -288,13 +273,13 @@ export default function AdminDashboard() {
                         <div className="flex gap-3">
                           <button
                             onClick={() => handleEventStatusUpdate(event.id, 'APPROVED')}
-                            className="text-primary-600 hover:text-primary-500 transition-colors"
+                            className="text-slate-700 hover:text-slate-900 transition-colors"
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => handleEventStatusUpdate(event.id, 'REJECTED')}
-                            className="text-rose-500 hover:text-rose-400 transition-colors"
+                            className="text-red-600 hover:text-red-700 transition-colors"
                           >
                             Reject
                           </button>

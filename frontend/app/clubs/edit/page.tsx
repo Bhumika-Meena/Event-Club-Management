@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Save, Building2 } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import axios from 'axios'
+import { Save, Building2, Edit } from 'lucide-react'
+import { useAuth, apiClient } from '../../contexts/AuthContext'
+import { Header } from '../../components/Header'
 import toast from 'react-hot-toast'
 
 interface Club {
@@ -45,7 +45,7 @@ export default function EditClub() {
 
   const fetchClub = async () => {
     try {
-      const response = await axios.get('/clubs/my/club')
+      const response = await apiClient.get('/clubs/my/club')
       const clubData = response.data.club
       setClub(clubData)
       setFormData({
@@ -71,7 +71,7 @@ export default function EditClub() {
     setSaving(true)
 
     try {
-      await axios.put(`/clubs/${club?.id}`, formData)
+      await apiClient.put(`/clubs/${club?.id}`, formData)
       toast.success('Club updated successfully!')
       router.push('/club')
     } catch (error: any) {
@@ -91,7 +91,7 @@ export default function EditClub() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-slate-600"></div>
       </div>
     )
   }
@@ -100,7 +100,7 @@ export default function EditClub() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold title-gradient mb-4">No Club Found</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">No Club Found</h1>
           <p className="text-slate-600 mb-6">You need to create a club first.</p>
           <Link href="/club" className="btn-primary">
             Go Back
@@ -111,18 +111,19 @@ export default function EditClub() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <Link href="/club" className="btn-secondary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Link>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center">
+              <Edit className="w-5 h-5 text-slate-600" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold title-gradient">Edit Club</h1>
-              <p className="text-slate-600">Update your club information</p>
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Edit Club</h1>
+              <p className="text-sm text-slate-600 mt-1">Update your club information</p>
             </div>
           </div>
         </div>

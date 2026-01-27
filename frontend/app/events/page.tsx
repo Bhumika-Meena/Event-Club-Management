@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Calendar, MapPin, Users, Clock, Filter, X } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
-import axios from 'axios'
+import { Calendar, MapPin, Users, Clock, Search, X, Plus, ArrowRight } from 'lucide-react'
+import { useAuth, apiClient } from '../contexts/AuthContext'
+import { Header } from '../components/Header'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { BookingForm } from '../components/BookingForm'
@@ -34,22 +34,16 @@ export default function Events() {
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [bookingEvent, setBookingEvent] = useState<Event | null>(null)
-  const [filters, setFilters] = useState({
-    status: '',
-    search: ''
-  })
+  const [searchQuery, setSearchQuery] = useState('')
   const { user } = useAuth()
 
   useEffect(() => {
     fetchEvents()
-  }, [filters])
+  }, [])
 
   const fetchEvents = async () => {
     try {
-      const params = new URLSearchParams()
-      if (filters.status) params.append('status', filters.status)
-      
-      const response = await axios.get(`/events?${params.toString()}`)
+      const response = await apiClient.get('/events')
       setEvents(response.data.events)
     } catch (error) {
       toast.error('Failed to fetch events')
@@ -72,7 +66,7 @@ export default function Events() {
       return
     }
     setBookingEvent(event)
-    setSelectedEvent(null) // Close event details modal if open
+    setSelectedEvent(null)
   }
 
   const closeBookingForm = () => {
@@ -80,158 +74,183 @@ export default function Events() {
   }
 
   const handleBookingSuccess = () => {
-    fetchEvents() // Refresh events to update booking count
+    fetchEvents()
   }
 
   const filteredEvents = events.filter(event => {
-    if (filters.search) {
-      return event.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-             event.description.toLowerCase().includes(filters.search.toLowerCase()) ||
-             event.club.name.toLowerCase().includes(filters.search.toLowerCase())
-    }
-    return true
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      event.title.toLowerCase().includes(query) ||
+      event.description.toLowerCase().includes(query) ||
+      event.club.name.toLowerCase().includes(query) ||
+      event.venue.toLowerCase().includes(query)
+    )
   })
+
+  const availableSeats = (event: Event) => event.maxSeats - event._count.bookings
+  const isEventFull = (event: Event) => availableSeats(event) <= 0
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-500"></div>
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="flex items-center justify-center py-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-900 border-t-transparent"></div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/70 backdrop-blur border-b border-white/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold title-gradient">Events</h1>
-              <p className="text-slate-600">Discover and book exciting events</p>
-            </div>
-            {user?.role === 'CLUB' && (
-              <Link href="/events/create" className="btn-primary flex items-center">
-                Create Event
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      <Header />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="card mb-10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search events..."
-                className="input-field"
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="relative">
-                <Filter className="absolute left-3 top-3 h-4 w-4 text-primary-400" />
-                <select
-                  className="input-field pl-10"
-                  value={filters.status}
-                  onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                >
-                  <option value="">All Events</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="PENDING">Pending</option>
-                </select>
-              </div>
-            </div>
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
+              Events
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Discover and book upcoming events
+            </p>
           </div>
+          
+          {user?.role === 'CLUB' && (
+            <Link 
+              href="/events/create" 
+              className="inline-flex items-center gap-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 px-4 py-2.5 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Event
+            </Link>
+          )}
+        </div>
+
+        {/* Search */}
+        <div className="relative mb-8">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search events by name, venue, or organizer..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-slate-200 rounded-xl placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event, index) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="card-hover"
-            >
-              <div className="flex items-center mb-4">
-                {event.club.logo && (
-                  <img
-                    src={event.club.logo}
-                    alt={event.club.name}
-                    className="w-10 h-10 rounded-full mr-3"
-                  />
-                )}
-                <div>
-                  <h3 className="font-semibold text-gray-900">{event.club.name}</h3>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    event.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                    event.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {event.status}
-                  </span>
-                </div>
-              </div>
+        {filteredEvents.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredEvents.map((event, index) => (
+              <motion.article
+                key={event.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-300 hover:shadow-sm transition-all"
+              >
+                {/* Event Header */}
+                <div className="p-5 pb-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-slate-500 mb-1">{event.club.name}</p>
+                      <h3 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
+                        {event.title}
+                      </h3>
+                    </div>
+                    {event.status === 'APPROVED' ? (
+                      <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-green-50 text-green-700 border border-green-200 rounded-full">
+                        Open
+                      </span>
+                    ) : (
+                      <span className="shrink-0 px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                        Pending
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-slate-600 line-clamp-2 mb-4">
+                    {event.description}
+                  </p>
 
-              <h2 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h2>
-              <p className="text-slate-600 mb-4 line-clamp-3">{event.description}</p>
+                  {/* Event Details */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <span>{format(new Date(event.date), 'EEE, MMM d')}</span>
+                      <span className="text-slate-300">·</span>
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <span>{format(new Date(event.date), 'h:mm a')}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      <span className="truncate">{event.venue}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <Users className="w-4 h-4 text-slate-400" />
+                      <span>
+                        {availableSeats(event) > 0 
+                          ? `${availableSeats(event)} seats left`
+                          : 'Fully booked'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-slate-600">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span>{format(new Date(event.date), 'MMM dd, yyyy')}</span>
-                </div>
-                <div className="flex items-center text-slate-600">
-                  <Clock className="w-4 h-4 mr-2" />
-                  <span>{format(new Date(event.date), 'h:mm a')}</span>
-                </div>
-                <div className="flex items-center text-slate-600">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <span>{event.venue}</span>
-                </div>
-                <div className="flex items-center text-slate-600">
-                  <Users className="w-4 h-4 mr-2" />
-                  <span>{event._count.bookings} / {event.maxSeats} booked</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="text-lg font-bold title-gradient">
-                  {event.price > 0 ? `₹${event.price}` : 'Free'}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => openEventDetails(event)}
-                    className="btn-secondary text-sm"
-                  >
-                    View Details
-                  </button>
-                  {user && event.status === 'APPROVED' && event._count.bookings < event.maxSeats && (
+                {/* Event Footer */}
+                <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="text-base font-semibold text-slate-900">
+                    {event.price > 0 ? `₹${event.price}` : 'Free'}
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => openBookingForm(event)}
-                      className="btn-primary text-sm"
+                      onClick={() => openEventDetails(event)}
+                      className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                     >
-                      Book Now
+                      Details
                     </button>
-                  )}
+                    {user && event.status === 'APPROVED' && !isEventFull(event) && (
+                      <button
+                        onClick={() => openBookingForm(event)}
+                        className="text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-lg transition-colors"
+                      >
+                        Book
+                      </button>
+                    )}
+                    {!user && event.status === 'APPROVED' && !isEventFull(event) && (
+                      <Link
+                        href="/login"
+                        className="text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 px-4 py-1.5 rounded-lg transition-colors"
+                      >
+                        Book
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {filteredEvents.length === 0 && (
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-primary-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">No events found</h3>
-            <p className="text-slate-600">Try adjusting your search or filters</p>
+              </motion.article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
+              <Calendar className="w-8 h-8 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-medium text-slate-900 mb-1">No events found</h3>
+            <p className="text-sm text-slate-500">
+              {searchQuery ? 'Try a different search term' : 'Check back later for upcoming events'}
+            </p>
           </div>
         )}
       </div>
@@ -240,115 +259,129 @@ export default function Events() {
       <AnimatePresence>
         {selectedEvent && (
           <motion.div
-            className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={closeEventDetails}
           >
             <motion.div
-              className="card max-w-2xl w-full mx-4 relative"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <button
-                type="button"
-                onClick={closeEventDetails}
-                className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-3 mb-4">
-                {selectedEvent.club.logo && (
-                  <img
-                    src={selectedEvent.club.logo}
-                    alt={selectedEvent.club.name}
-                    className="w-12 h-12 rounded-full"
-                  />
-                )}
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Hosted by</p>
-                  <h3 className="font-semibold text-slate-900">{selectedEvent.club.name}</h3>
+                  <p className="text-xs text-slate-500">{selectedEvent.club.name}</p>
+                  <h2 className="text-lg font-semibold text-slate-900">{selectedEvent.title}</h2>
                 </div>
-              </div>
-
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                {selectedEvent.title}
-              </h2>
-
-              <p className="text-slate-600 mb-6 whitespace-pre-line">
-                {selectedEvent.description}
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="space-y-2">
-                  <div className="flex items-center text-slate-700">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>{format(new Date(selectedEvent.date), 'MMMM dd, yyyy')}</span>
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <Clock className="w-4 h-4 mr-2" />
-                    <span>{format(new Date(selectedEvent.date), 'h:mm a')}</span>
-                  </div>
-                  <div className="flex items-center text-slate-700">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{selectedEvent.venue}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center text-slate-700">
-                    <Users className="w-4 h-4 mr-2" />
-                    <span>
-                      {selectedEvent._count.bookings} / {selectedEvent.maxSeats} seats booked
-                    </span>
-                  </div>
-                  <div className="text-slate-700">
-                    <span className="font-medium">Price: </span>
-                    <span className="font-semibold">
-                      {selectedEvent.price > 0 ? `₹${selectedEvent.price}` : 'Free'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Status: </span>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                        selectedEvent.status === 'APPROVED'
-                          ? 'bg-green-100 text-green-800'
-                          : selectedEvent.status === 'PENDING'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {selectedEvent.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2">
                 <button
-                  type="button"
                   onClick={closeEventDetails}
-                  className="btn-secondary"
+                  className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-500" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="px-6 py-5">
+                <p className="text-sm text-slate-600 leading-relaxed mb-6">
+                  {selectedEvent.description}
+                </p>
+
+                {/* Event Info Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs text-slate-500">Date</span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {format(new Date(selectedEvent.date), 'EEEE, MMMM d, yyyy')}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs text-slate-500">Time</span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {format(new Date(selectedEvent.date), 'h:mm a')}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs text-slate-500">Venue</span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {selectedEvent.venue}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs text-slate-500">Availability</span>
+                    </div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {availableSeats(selectedEvent)} / {selectedEvent.maxSeats} seats
+                    </p>
+                  </div>
+                </div>
+
+                {/* Price & Status */}
+                <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl text-white">
+                  <div>
+                    <p className="text-xs text-slate-400">Price</p>
+                    <p className="text-xl font-semibold">
+                      {selectedEvent.price > 0 ? `₹${selectedEvent.price}` : 'Free'}
+                    </p>
+                  </div>
+                  {selectedEvent.status === 'APPROVED' ? (
+                    <span className="px-3 py-1 text-xs font-medium bg-green-500/20 text-green-300 rounded-full">
+                      Open for booking
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full">
+                      Pending approval
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4 flex gap-3">
+                <button
+                  onClick={closeEventDetails}
+                  className="flex-1 h-11 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                 >
                   Close
                 </button>
-                {user &&
-                  selectedEvent.status === 'APPROVED' &&
-                  selectedEvent._count.bookings < selectedEvent.maxSeats && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeEventDetails()
-                        openBookingForm(selectedEvent)
-                      }}
-                      className="btn-primary"
-                    >
-                      Book This Event
-                    </button>
-                  )}
+                {user && selectedEvent.status === 'APPROVED' && !isEventFull(selectedEvent) && (
+                  <button
+                    onClick={() => {
+                      closeEventDetails()
+                      openBookingForm(selectedEvent)
+                    }}
+                    className="flex-1 h-11 inline-flex items-center justify-center gap-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors"
+                  >
+                    Book Now
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+                {!user && selectedEvent.status === 'APPROVED' && !isEventFull(selectedEvent) && (
+                  <Link
+                    href="/login"
+                    className="flex-1 h-11 inline-flex items-center justify-center gap-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors"
+                  >
+                    Login to Book
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </div>
             </motion.div>
           </motion.div>
