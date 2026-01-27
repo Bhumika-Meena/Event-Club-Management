@@ -26,48 +26,50 @@ export function Header() {
           <Link href="/" className="text-lg font-semibold text-slate-900 tracking-tight">
             EventPortal
           </Link>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {user ? (
               <>
-                <Link 
-                  href="/events" 
+                <Link
+                  href="/events"
                   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors"
                 >
                   Events
                 </Link>
-                
-                <Link 
-                  href="/bookings" 
-                  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
-                >
-                  <Ticket className="w-4 h-4" />
-                  My Bookings
-                </Link>
-                
+
+                {user.role === "STUDENT" && (
+                  <Link
+                    href="/bookings"
+                    className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+                  >
+                    <Ticket className="w-4 h-4" />
+                    My Bookings
+                  </Link>
+                )}
+
                 {user.role === 'ADMIN' && (
-                  <Link 
-                    href="/admin" 
+                  <Link
+                    href="/admin"
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
                   >
                     <Settings className="w-4 h-4" />
                     Admin
                   </Link>
                 )}
-                
+
                 {user.role === 'CLUB' && (
-                  <Link 
-                    href="/club" 
+                  <Link
+                    href="/club"
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
                   >
                     <Building2 className="w-4 h-4" />
                     Dashboard
                   </Link>
                 )}
-                
-                <Link 
-                  href="/profile" 
+
+                <Link
+                  href="/profile"
                   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
                 >
                   <User className="w-4 h-4" />
@@ -75,7 +77,7 @@ export function Header() {
                 </Link>
 
                 <div className="w-px h-5 bg-slate-200 mx-2" />
-                
+
                 <button
                   onClick={handleLogout}
                   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
@@ -86,20 +88,20 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link 
-                  href="/events" 
+                <Link
+                  href="/events"
                   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors"
                 >
                   Events
                 </Link>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2 transition-colors"
                 >
                   Log in
                 </Link>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 px-4 py-2 rounded-lg transition-colors"
                 >
                   Sign up
@@ -123,26 +125,26 @@ export function Header() {
             <div className="flex flex-col gap-1">
               {user ? (
                 <>
-                  <Link 
-                    href="/events" 
+                  <Link
+                    href="/events"
                     onClick={closeMobileMenu}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors"
                   >
                     Events
                   </Link>
-                  
-                  <Link 
-                    href="/bookings" 
+
+                  <Link
+                    href="/bookings"
                     onClick={closeMobileMenu}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
                   >
                     <Ticket className="w-4 h-4" />
                     My Bookings
                   </Link>
-                  
+
                   {user.role === 'ADMIN' && (
-                    <Link 
-                      href="/admin" 
+                    <Link
+                      href="/admin"
                       onClick={closeMobileMenu}
                       className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
                     >
@@ -150,10 +152,10 @@ export function Header() {
                       Admin Dashboard
                     </Link>
                   )}
-                  
+
                   {user.role === 'CLUB' && (
-                    <Link 
-                      href="/club" 
+                    <Link
+                      href="/club"
                       onClick={closeMobileMenu}
                       className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
                     >
@@ -161,9 +163,9 @@ export function Header() {
                       Club Dashboard
                     </Link>
                   )}
-                  
-                  <Link 
-                    href="/profile" 
+
+                  <Link
+                    href="/profile"
                     onClick={closeMobileMenu}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
                   >
@@ -172,7 +174,7 @@ export function Header() {
                   </Link>
 
                   <div className="h-px bg-slate-100 my-2" />
-                  
+
                   <button
                     onClick={handleLogout}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2 w-full text-left"
@@ -183,22 +185,22 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link 
-                    href="/events" 
+                  <Link
+                    href="/events"
                     onClick={closeMobileMenu}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors"
                   >
                     Events
                   </Link>
-                  <Link 
-                    href="/login" 
+                  <Link
+                    href="/login"
                     onClick={closeMobileMenu}
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors"
                   >
                     Log in
                   </Link>
-                  <Link 
-                    href="/register" 
+                  <Link
+                    href="/register"
                     onClick={closeMobileMenu}
                     className="text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 px-4 py-2.5 rounded-lg transition-colors text-center mt-2"
                   >
