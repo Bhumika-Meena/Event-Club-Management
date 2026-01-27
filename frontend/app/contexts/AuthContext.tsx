@@ -174,13 +174,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = useCallback(async () => {
+    // Remove token first to prevent race conditions
+    removeToken()
+    setUser(null)
+    
     try {
       await apiClient.post('/auth/logout')
     } catch (error) {
-      // Ignore logout errors
-    } finally {
-      removeToken()
-      setUser(null)
+      // Ignore logout errors - already cleared local state
+      console.error('Logout API call failed:', error)
     }
   }, [])
 

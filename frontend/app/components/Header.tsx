@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { Settings, Building2, User, LogOut, Menu, X } from 'lucide-react'
+import { Settings, Building2, User, LogOut, Menu, X, Ticket } from 'lucide-react'
 
 export function Header() {
   const { user, logout } = useAuth()
@@ -12,9 +12,9 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
-    logout()
     setMobileMenuOpen(false)
-    router.replace('/')
+    logout()
+    router.push('/')
   }
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
@@ -36,6 +36,14 @@ export function Header() {
                   className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors"
                 >
                   Events
+                </Link>
+                
+                <Link 
+                  href="/bookings" 
+                  className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <Ticket className="w-4 h-4" />
+                  My Bookings
                 </Link>
                 
                 {user.role === 'ADMIN' && (
@@ -121,6 +129,15 @@ export function Header() {
                     className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors"
                   >
                     Events
+                  </Link>
+                  
+                  <Link 
+                    href="/bookings" 
+                    onClick={closeMobileMenu}
+                    className="text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-2.5 rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Ticket className="w-4 h-4" />
+                    My Bookings
                   </Link>
                   
                   {user.role === 'ADMIN' && (
