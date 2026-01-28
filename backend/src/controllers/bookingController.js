@@ -177,14 +177,14 @@ const verifyQRCode = async (req, res) => {
       });
     }
 
-    // Check if event has started (allow check-in 20hr before event)
+    // Check if event has started (allow check-in 20 hours  before event)
     const eventDate = new Date(booking.event.date);
-    const checkInStartTime = new Date(eventDate.getTime() - 20 * 60 * 60 * 1000); // 20hr before
+    const checkInStartTime = new Date(eventDate.getTime() - 20 * 60 * 60 * 1000); // 20 hours  before
     const now = new Date();
 
     if (now < checkInStartTime) {
       return res.status(400).json({
-        message: 'Check-in is not available yet. Check-in opens 20hr before the event.',
+        message: 'Check-in is not available yet. Check-in opens 20 hours  before the event.',
         checkInOpensAt: checkInStartTime
       });
     }

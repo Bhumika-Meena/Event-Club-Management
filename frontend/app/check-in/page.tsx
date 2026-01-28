@@ -280,7 +280,7 @@ export default function CheckInPage() {
                     <p className="text-slate-700">{error}</p>
                     {error.includes('not available yet') && (
                       <p className="text-sm text-slate-600 mt-2">
-                        💡 Check-in opens 30 minutes before the event starts. Please wait until then.
+                        💡 Check-in opens 20 hours before the event starts. Please wait until then.
                       </p>
                     )}
                   </div>
@@ -389,7 +389,7 @@ export default function CheckInPage() {
                 <li>Position the attendee's QR code within the frame</li>
                 <li>The system will automatically verify and check them in</li>
                 <li>If scanning fails, use "Enter Manual Code" to paste the token</li>
-                <li>Check-in opens 30 minutes before the event starts</li>
+                <li>Check-in opens 20 hours before the event starts</li>
               </ol>
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
