@@ -56,13 +56,6 @@ A comprehensive full-stack web application for managing events and clubs with ro
 - **React Hook Form** for form handling
 - **Axios** for API calls
 
-## Getting Started
-
-### Prerequisites
-- Node.js (v18 or higher)
-- PostgreSQL database
-- npm or yarn
-
 ### Backend Setup
 
 1. Navigate to the backend directory:
@@ -132,7 +125,6 @@ The frontend will be available at `http://localhost:3000`
 
 The seed script creates demo accounts for testing:
 
-- **Admin**: admin@example.com / admin123
 - **Club**: club@example.com / club123  
 - **Student**: student@example.com / student123
 
